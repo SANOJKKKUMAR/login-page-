@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+       /* ===== Body & Container ===== */
+body {
+    font-family: 'Poppins', Arial, sans-serif;
+    background: linear-gradient(135deg, #f9f9f9, #e0f7fa);
+    color: #333;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    margin: 0;
+}
+
+.container {
+    width: 400px;
+    padding: 30px 40px;
+    background: #fff;
+    border-radius: 15px;
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+    position: relative;
+    overflow: hidden;
+    animation: fadeIn 1s ease forwards;
+}
+
+/* ===== Heading ===== */
+h1 {
+    text-align: center;
+    color: #28a745;
+    font-size: 2.2rem;
+    margin-bottom: 30px;
+    position: relative;
+}
+
+h1::after {
+    content: '';
+    width: 60px;
+    height: 3px;
+    background: #28a745;
+    display: block;
+    margin: 10px auto 0;
+    border-radius: 2px;
+}
+
+/* ===== Form Labels & Inputs ===== */
+label {
+    display: block;
+    font-weight: 600;
+    margin-top: 20px;
+    transition: all 0.3s ease;
+}
+
+input {
+    width: 100%;
+    padding: 12px 15px;
+    margin-top: 5px;
+    border: 2px solid #ccc;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    font-size: 1rem;
+}
+
+input:focus {
+    border-color: #28a745;
+    box-shadow: 0 4px 10px rgba(40, 167, 69, 0.3);
+    outline: none;
+}
+
+/* ===== Button ===== */
+button {
+    width: 100%;
+    padding: 12px;
+    margin-top: 30px;
+    font-size: 1.1rem;
+    font-weight: bold;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    background: linear-gradient(90deg, #28a745, #20c997);
+    color: #fff;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+button:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+    background: linear-gradient(90deg, #20c997, #28a745);
+}
+
+button::after {
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 0;
+    top: 0;
+    left: 0;
+    background: rgba(255, 255, 255, 0.2);
+    transition: all 0.3s ease;
+}
+
+button:hover::after {
+    height: 100%;
+}
+
+/* ===== Floating Animation ===== */
+@keyframes fadeIn {
+    0% { opacity: 0; transform: translateY(-20px);}
+    100% { opacity: 1; transform: translateY(0);}
+}
+
+/* ===== Input Floating Label Effect (Optional) ===== */
+input:focus + label,
+input:not(:placeholder-shown) + label {
+    color: #28a745;
+    font-size: 0.85rem;
+    transform: translateY(-5px);
+}
+
+    </style>
+</head>
+
+<body>
+
+    <div class="container">
+        <h1>Register</h1>
+        <form>
+            <label for="username">Username:</label>
+            <input type="text" id="username" name="username" required>
+
+            <label for="email">Email:</label>
+            <input type="email" id="email" name="email" required>
+
+            <label for="password">Password:</label>
+            <input type="password" id="password" name="password" required>
+            <br>
+
+            <button type="submit">Register</button>
+             <button type="button" onclick="window.location.href='index.html'">Go to Login</button> 
+
+    
+        </form>
+    </div>
+
+    <script>
+        const form = document.querySelector('form');
+
+        form.addEventListener('submit', async (event) => {
+            event.preventDefault();
+
+            const username = document.getElementById("username").value;
+            const email = document.getElementById("email").value;
+            const password = document.getElementById("password").value;
+            //
+             let res;
+            try {
+                res = await fetch("http://localhost:3000/register", {
+                    method: "POST",
+
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({ username, email, password }),
+
+                });
+
+            }
+            catch (err) {
+                console.log('Error occurred while registering:');
+                console.log(err);
+            }
+            let data = await res.json();
+            console.log(data);
+            // You can add form submission logic here
+            alert('Registration form submitted!');
+            event.target.reset();
+        });
+        // You can add JavaScript here for form submission handling if needed   
+
+       
+    </script>
+</body>
+
+</html>
