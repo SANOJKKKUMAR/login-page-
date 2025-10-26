@@ -194,6 +194,8 @@ loginBtn.addEventListener('click', async (e) => {
         const data = await res.json();
         console.log('Success:', data);
         alert('Login successful! Check console for response.');
+        // Optionally, redirect to another page upon successful login
+         window.location.href = 'expense.html';
       
     } catch (err) {
         console.error('Error occurred during login:', err);
