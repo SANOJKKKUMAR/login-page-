@@ -14,6 +14,13 @@ const sequelize = new Sequelize('login','root', 'Sanoj@500r7', {
 });
 
 const User = sequelize.define('User', {
+
+   userID: {
+        type: DataTypes.INTEGER,
+        autoIncrement: true,
+        primaryKey: true,
+        allowNull: false
+    },
     username: {
         type: DataTypes.STRING,
         allowNull: false,
@@ -27,6 +34,17 @@ const User = sequelize.define('User', {
 });
 
 const expense = sequelize.define('Expense', {
+    expenseID: {
+        type: DataTypes.INTEGER,
+        autoIncrement: true,
+        primaryKey: true,
+    },
+
+    userID: {
+        foreignKey: true,
+        type: DataTypes.INTEGER,
+        allowNull: false
+    },
     amount: {
         type: DataTypes.FLOAT,
         allowNull: false
@@ -42,10 +60,13 @@ const expense = sequelize.define('Expense', {
 });
 
 
+User.hasMany(expense, { foreignKey: 'userID' });
+expense.belongsTo(User, { foreignKey: 'userID' });
 
 
 
-sequelize.sync()
+
+sequelize.sync({ alter: true })
     .then(() => {
         console.log('Database & tables created!');
     })
@@ -75,9 +96,7 @@ app.post('/login', async (req, res) => {
         }
         const match = await bcrypt.compare(password, user.password);
         if (match) {
-               return res.json({
-      message: 'Login successful',
-      user: { id: user.id, username: user.username, email: user.email }
+               return res.json({ message: 'Login successful by sanoj',user: { id: user.userID, username: user.username, email: user.email }
     });
         } else {
             res.status(401).json({ message: 'Invalid credentials' });
@@ -92,9 +111,10 @@ app.post('/login', async (req, res) => {
 });
 
 app.post('/expense', async (req, res) => {
-    const { amount, description, category } = req.body;
+    console.log(req.body);
+    const {userID, amount, description, category } = req.body;
     try {
-        const newExpense = await expense.create({ amount, description, category });
+        const newExpense = await expense.create({ userID ,amount, description, category });
 
 const allExpenses = await expense.findAll();
         res.status(201).json(allExpenses);
@@ -104,14 +124,64 @@ const allExpenses = await expense.findAll();
 
 });
 
-app.get('/expense', async (req, res) => {
+
+
+app.get('/expenses/:id', async (req, res) => {
+    const userID = req.params.id;
+    console.log(userID);
     try {
-        const allExpenses = await expense.findAll();
+        const allExpenses = await expense.findAll({where :{userID}});
         res.status(200).json(allExpenses);
     } catch (error) {
         res.status(400).json({ error: error.message });
     }
 });
+
+app.delete('/expense/:id', async (req, res) => {
+    const expenseID = req.params.id;
+    try {
+        await expense.destroy({ where: { expenseID } });
+        const allExpenses = await expense.findAll();
+        res.status(200).json(allExpenses);
+    }
+    catch (error) {
+        res.status(400).json({ error: error.message });
+    }
+});
+
+
+
+app.put('/expense/:id', async (req, res) => {
+  const expenseID = req.params.id;
+  console.log('Expense ID to update:', expenseID);
+  console.log('Request body:', req.body);
+  const { amount, description, category } = req.body;
+
+  try {
+    await expense.update(
+      { amount, description, category },
+      { where: { expenseID } }
+    );
+    const allExpenses = await expense.findAll({where: { expenseID }});
+    res.status(200).json(allExpenses);
+
+   
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+});
+
+app.get("/expense/:id", async (req, res) => {
+    const expenseID = req.params.id;
+    console.log(expenseID)
+    try {
+        const exp = await expense.findOne({ where: { expenseID } });
+        res.status(200).json(exp);
+    } catch (error) {
+        res.status(400).json({ error: error.message });
+    }
+});
+
 app.listen(port, () => {
     console.log(`Server is running on http://localhost:${port}`);
 });

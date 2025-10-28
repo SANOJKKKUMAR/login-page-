@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
     <style>
+
         .cointener {
           
             margin: 50px auto;
@@ -13,6 +14,7 @@
             border: 1px solid #ccc;
             border-radius: 5px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+           
         }
         .cointener h1,select,option{
             text-align: center;
@@ -72,10 +74,44 @@
             border-radius: 5px;
             box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
         }
+        .expense-item button {
+            margin-left: 30px;
+            width: 80px;
+            font-size: 14px;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+        }   
+
+        h2 {
+            text-align: center;
+            color: #007BFF;
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+        }
+
+        #logoutbtn{
+            background-color: rgb(255, 0, 0);
+            width: 80px;
+          margin-top: 20px;
+          margin-left: 90%;
+
+        }
     </style>
 </head>
 <body>
+<header>
+    <div>
+
+    </div>
+</header>
+
+
+    <button id="logoutbtn">Logout</button>
     <div class="cointener">
+        
+    
+        <h2 id="hh"></h2>
         <h1>Expense Page</h1>
         <form>
             
@@ -99,32 +135,54 @@
             </section>
               </div>
               <br> 
-            <button type="submit">Add Expense</button>
-            <button id="historybtn"> show All expense List</button>
+            <button type="submit" id="updatebtn">Add Expense</button>
+           
         </form>
+         <button id="historybtn"> show All expense List</button>
     </div>
     <div class="expenseList">
         <ul id="ull"></ul>
     </div>
 
     <script>
-
+ let editedbtn = false;
         const historybtn = document.getElementById('historybtn');
         document.querySelector('form').addEventListener('submit', async(event) => {
-
-            event.preventDefault();
+ event.preventDefault();
             const amount = document.getElementById('expense-amount').value;
             const description = document.getElementById('expense-description').value;
             const category = document.getElementById('expense-category').value;
 
+         if(editedbtn){
+          
+               try{
+                   // Update request
+  let id = editedbtn;
+  const response = await fetch(`http://localhost:3000/expense/${id}`, {
+      method: 'PUT',   // ✅ change from POST → PUT
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ amount, description, category })
+  });
+  
+    
+  editedbtn = false;
 
+
+    }
+    catch(err){
+        console.log("during update eror ",err);
+    }
+}
+     else{
             try{
+               let userID = localStorage.getItem('userId');
+               console.log(userID);
                 const response = await fetch('http://localhost:3000/expense', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify({ amount, description, category })
+                    body: JSON.stringify({ amount, description, category , userID})
                 });
 
                 if (!response.ok) {
@@ -132,13 +190,15 @@
                 }
 
                 const data = await response.json();
+                console.log(data);
                  await display(data);
                 console.log('Success:', data);
+                editedbtn = true;
                 event.target.reset();
             } catch (error) {
                 console.error('Error:', error);
             }
-
+        }
           
         });
 
@@ -155,7 +215,8 @@
     arr.forEach(ex => {
         const li = document.createElement('li');
         li.classList.add('expense-item');
-        li.textContent = `Amount: ${ex.amount}, Description: ${ex.description}, Category: ${ex.category}`;
+        li.innerHTML = `Amount: ${ex.amount}, Description: ${ex.description}, Category: ${ex.category},  <button onclick="deleteExpense('${ex.expenseID}')">Delete</button>
+         <button onclick="editExpense('${ex.expenseID}')">Edit</button>`;
         expenseData.appendChild(li);
     });
 
@@ -165,7 +226,9 @@
 historybtn.addEventListener('click', async() => {
 
     try {
-        const response = await fetch('http://localhost:3000/expense', {
+        const id = localStorage.getItem("userId");
+        console.log(id);
+        const response = await fetch(`http://localhost:3000/expenses/${id}`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json'
@@ -183,6 +246,78 @@ historybtn.addEventListener('click', async() => {
         console.error('Error:', error);
     }
 });
+
+
+function showname(){
+    const h2 = document.querySelector('h2');
+    let username = localStorage.getItem('username');
+
+// agar username exist karta hai
+if (username) {
+  // pehla letter capital + baaki same
+  username = username.charAt(0).toUpperCase() + username.slice(1);
+
+  // h2 me set karna
+  h2.textContent = `Welcome, ${username}`;
+}
+}
+showname();
+
+
+ async function deleteExpense(id) {
+     console.log('Deleting expense with ID:', id);
+    try{
+       
+
+   await  fetch(`http://localhost:3000/expense/${id}`, {
+        method: 'DELETE'
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log('Expense deleted:', data);
+        // expense list ko refresh karna
+        historybtn.click();
+    })
+    .catch(error => {
+        console.error('Error deleting expense:', error);
+    });
+}
+catch(error){
+    console.error('Error in deleteExpense function:', error);
+}
+}
+
+  async function editExpense(id) {
+   
+ console.log('edited expense with ID:', id);
+ const updatebtn = document.getElementById('updatebtn');
+ updatebtn.textContent = 'Update Expense';
+    try{
+     let res =  await  fetch(`http://localhost:3000/expense/${id}`);
+        let data = await res.json();
+        document.getElementById("expense-amount").value = data.amount;
+        document.getElementById("expense-description").value = data.description;
+        document.getElementById("expense-category").value = data.category;
+        console.log(data);
+        editedbtn = id;
+        deleteExpense(id);
+
+
+}
+catch(error){
+    console.error('Error in editExpense function:', error);
+  }
+}
+
+
+
+let logout = document.getElementById("logoutbtn");
+logout.addEventListener("click",(e)=>{
+    window.location.replace("index.html");
+
+})
+
+
 
 
     </script>
