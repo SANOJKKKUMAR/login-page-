@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Payment Status</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      padding: 50px;
+      background-color: #f8f9fa;
+    }
+    .card {
+      display: inline-block;
+      padding: 25px 50px;
+      border-radius: 12px;
+      background: #fff;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    }
+    .success {
+      color: green;
+      font-size: 22px;
+      font-weight: bold;
+    }
+    .fail {
+      color: red;
+      font-size: 22px;
+      font-weight: bold;
+    }
+    .redirect-msg {
+      margin-top: 15px;
+      color: #555;
+      font-size: 14px;
+    }
+    #loader {
+      margin-top: 10px;
+      font-size: 14px;
+      color: gray;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="card">
+    <h2>Payment Status</h2>
+    <div id="status">Verifying payment...</div>
+    <p id="details"></p>
+    <p class="redirect-msg" id="redirectText" style="display:none;">
+      Redirecting to Expense Page in <span id="count">15</span> seconds...
+    </p>
+    <div id="loader">⏳ Please wait while we confirm your transaction...</div>
+  </div>
+
+  <script>
+    const urlParams = new URLSearchParams(window.location.search);
+    const orderId = urlParams.get('order_id');
+
+    async function verifyPayment() {
+      try {
+        console.log("Verifying order:", orderId);
+
+        // ✅ Always use full backend URL for ngrok/live (important)
+        const res = await fetch(`http://localhost:3000/payment/verify-order?order_id=${orderId}`);
+        const data = await res.json();
+        console.log("Verify response:", data);
+
+        document.getElementById("loader").style.display = "none";
+
+        if (data.order_status === 'PAID') {
+          document.getElementById('status').innerHTML = '<p class="success">✅ Payment Successful!</p>';
+          document.getElementById("redirectText").style.display = "block";
+
+          // ✅ Premium user update already handled in backend
+
+          // Start countdown before redirect
+          let timeLeft = 5;
+          const timer = setInterval(() => {
+            timeLeft--;
+            document.getElementById("count").textContent = timeLeft;
+            if (timeLeft <= 0) {
+              clearInterval(timer);
+              window.location.href = "expense.html"; // Redirect after success
+            }
+          }, 1000);
+        } 
+        else {
+          document.getElementById('status').innerHTML = '<p class="fail">❌ Payment Failed or Pending.</p>';
+        }
+
+        document.getElementById('details').innerHTML = `
+          <b>Order ID:</b> ${orderId}<br>
+          <b>Status:</b> ${data.order_status || 'Unknown'}<br>
+          <b>Amount:</b> ₹${data.order_amount || 'N/A'}<br>
+          <b>Currency:</b> ${data.order_currency || 'N/A'}
+        `;
+      } catch (error) {
+        console.error("Error verifying payment:", error);
+        document.getElementById("loader").style.display = "none";
+        document.getElementById('status').innerHTML = '<p class="fail">❌ Error verifying payment.</p>';
+      }
+    }
+
+    verifyPayment();
+  </script>
+
+</body>
+</html>
