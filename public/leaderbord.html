@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Leaderboard</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f5f7fa;
+      text-align: center;
+      padding: 20px;
+    }
+    h1 {
+      color: #333;
+    }
+    button {
+      background: #007bff;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 16px;
+    }
+    button:hover {
+      background: #0056b3;
+    }
+    table {
+      margin: 20px auto;
+      border-collapse: collapse;
+      width: 70%;
+      background: white;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    th, td {
+      border: 1px solid #ddd;
+      padding: 10px;
+    }
+    th {
+      background: #007bff;
+      color: white;
+    }
+  </style>
+</head>
+<body>
+  <h1>Leaderboard</h1>
+  <button id="showLeaderboard">Show Leaderboard</button>
+
+ 
+
+<table id="leaderboardTable" border="1" style="display:none; margin-top:20px;">
+  <thead>
+    <tr>
+      <th>Rank</th>
+      <th>Username</th>
+      <th>Email</th>
+      <th>Total Spent (₹)</th>
+    </tr>
+  </thead>
+  <tbody id="tbody"></tbody>
+</table>
+<script>
+  const btn = document.getElementById("showLeaderboard");
+  const table = document.getElementById("leaderboardTable");
+  const tbody = document.getElementById("tbody");
+
+  btn.addEventListener("click", async () => {
+    try {
+      console.log("Starting fetching...");
+      const res = await fetch("http://localhost:3000/leaderboard/leaderboard");
+      const result = await res.json();
+      console.log(result);
+
+      const arr = result.data; // 👈 access the "data" array from backend
+      tbody.innerHTML = ""; // clear previous data
+
+      arr.forEach((item, index) => {
+        const row = document.createElement("tr");
+        row.innerHTML = `
+          <td>${index + 1}</td>
+          <td>${item.User.username}</td>
+          <td>${item.User.email}</td>
+          <td>₹${item.totalSpent}</td>
+        `;
+        tbody.appendChild(row);
+      });
+
+      table.style.display = "table"; // show table
+    } catch (error) {
+      console.error("Error fetching leaderboard:", error);
+      alert("Failed to load leaderboard");
+    }
+  });
+</script>
+</body>
+</html>

@@ -66,7 +66,7 @@
         console.log("Verify response:", data);
 
         document.getElementById("loader").style.display = "none";
-
+let timeLeft = 5;
         if (data.order_status === 'PAID') {
           document.getElementById('status').innerHTML = '<p class="success">✅ Payment Successful!</p>';
           document.getElementById("redirectText").style.display = "block";
@@ -74,7 +74,7 @@
           // ✅ Premium user update already handled in backend
 
           // Start countdown before redirect
-          let timeLeft = 5;
+          
           const timer = setInterval(() => {
             timeLeft--;
             document.getElementById("count").textContent = timeLeft;
@@ -86,6 +86,15 @@
         } 
         else {
           document.getElementById('status').innerHTML = '<p class="fail">❌ Payment Failed or Pending.</p>';
+          const timer = setInterval(() => {
+            timeLeft--;
+            document.getElementById("count").textContent = timeLeft;
+            if (timeLeft <= 0) {
+              clearInterval(timer);
+              window.location.href = "expense.html"; // Redirect after success
+            }
+          }, 1000);
+         
         }
 
         document.getElementById('details').innerHTML = `

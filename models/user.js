@@ -36,28 +36,13 @@ const User = sequelize.define("User", {
     type: DataTypes.STRING,
     allowNull: true,
   },
+  paymentStatus :{
+    type :DataTypes.STRING,
+    defaultValue : "pendding",
+    
+
+  },
 });
 
 module.exports = User;
 
-
-// const User = sequelize.define('User', {
-
-//    userID: {
-//         type: DataTypes.INTEGER,
-//         autoIncrement: true,
-//         primaryKey: true,
-//         allowNull: false
-//     },
-//     username: {
-//         type: DataTypes.STRING,
-//         allowNull: false,
-//         unique: true
-//     },
-//     email : {type:DataTypes.STRING,allowNull :false},
-//     password: {
-//         type: DataTypes.STRING,
-//         allowNull: false
-//     }
-// });
-// module.exports = User;

@@ -1,21 +1,82 @@
+const sequelize = require("../config/db");
 const expense = require("../models/expenses");
 
 
+// exports.addExpense = async (req, res) => {
+//     console.log(req.body);
+//     const {userID, amount, description, category } = req.body;
+//     try {
+//         const newExpense = await expense.create({ userID ,amount, description, category });
+
+// const allExpenses = await expense.findAll({where :{userID : userID}});
+// console.log(allExpenses);
+//         res.status(201).json(allExpenses);
+//     } catch (error) {
+//         res.status(400).json({ error: error.message });
+//     }   
+
+// };
+
+
+const { suggestCategory } = require("../utils/aiHelper");
+
+
 exports.addExpense = async (req, res) => {
-    console.log(req.body);
-    const {userID, amount, description, category } = req.body;
-    try {
-        const newExpense = await expense.create({ userID ,amount, description, category });
+  const t = await sequelize.transaction();
+  try {
+    const { userID, amount, description } = req.body;
 
-const allExpenses = await expense.findAll({where :{userID : userID}});
-console.log(allExpenses);
-        res.status(201).json(allExpenses);
-    } catch (error) {
-        res.status(400).json({ error: error.message });
-    }   
+    // ✅ Call AI to auto-categorize
+    const category = await suggestCategory(description);
+    console.log("cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",category);
 
+    const newExpense = await expense.create({
+      userID,
+      amount,
+      description,
+      category,
+    },{transaction : t});
+    await t.commit();
+    res.status(200).json(newExpense);
+
+
+  } catch (error) {
+    console.error("Add expense error:", error);
+    res.status(500).json({ error: "Failed to add expense" });
+    await t.rollback();
+  }
 };
 
+
+// exports.addExpense = async (req, res) => {
+//   try {
+//     const { userID, amount, description, category } = req.body;
+//     console.log("---------------ccccccccccccccccc",category);
+
+//     // If no category provided, let AI guess one
+//     let finalCategory = category;
+//     if (!finalCategory || finalCategory.trim() === "") {
+//       finalCategory = await suggestCategory(description);
+//       console.log("api -------------------------------------------------called");
+//     }
+
+//     const newExpense = await expense.create({
+//       userID,
+//       amount,
+//       description,
+//       category: finalCategory,
+//     });
+
+//     res.json({
+//       success: true,
+//       message: "Expense added successfully",
+//       expense: newExpense,
+//     });
+//   } catch (error) {
+//     console.error("Error adding expense:", error);
+//     res.status(500).json({ error: "Failed to add expense" });
+//   }
+// };
 
 
 exports.getExpensesByUser  =  async (req, res) => {

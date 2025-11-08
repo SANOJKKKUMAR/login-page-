@@ -11,7 +11,7 @@ const cashfree = new Cashfree(
   process.env.CASHFREE_SECRET_KEY
 );
 
-// 🟢 CREATE ORDER
+
 router.post("/create-order", async (req, res) => {
   console.log("payment request come");
   try {
@@ -22,6 +22,7 @@ router.post("/create-order", async (req, res) => {
       order_currency: "INR",
       order_id: "order_" + Date.now(),
       customer_details: {
+
         customer_id: "user_" + userId,
         customer_phone: "8102485837",
       },
@@ -32,6 +33,7 @@ router.post("/create-order", async (req, res) => {
     };
 
     const response = await cashfree.PGCreateOrder(request);
+    console.log("----------------------",response);
     console.log("Order created successfully:", response.data);
     res.json(response.data);
   } catch (error) {
@@ -40,7 +42,6 @@ router.post("/create-order", async (req, res) => {
   }
 });
 
-// 🟢 USER PROFILE (premium info)
 router.get("/profile/:id", async (req, res) => {
   const userId = req.params.id;
   try {
@@ -59,7 +60,6 @@ router.get("/profile/:id", async (req, res) => {
   }
 });
 
-// 🟢 VERIFY ORDER (और यही premium activate करेगा)
 router.get("/verify-order", async (req, res) => {
   console.log("verify payment is calling =============================================");
   const orderId = req.query.order_id;
@@ -77,12 +77,17 @@ router.get("/verify-order", async (req, res) => {
     });
 
     const data = response.data;
-    console.log("✅ ================================Order Verified:", data);
+    console.log(" ================================Order Verified:", data);
+    const order_status =  await response.data.order_status;
+    console.log("-----------iiiiiiiiiiiiiiiiiii",order_status);
+    
 
     // ✅ अगर payment successful है तो user को premium बना दो
     if (data.order_status === "PAID") {
       const userID = data.customer_details.customer_id.replace("user_", "");
       console.log("=======================================================userid ",userID);
+
+
       const user = await User.findByPk(userID);
 
 
@@ -94,9 +99,10 @@ router.get("/verify-order", async (req, res) => {
           isPremium: true,
           premiumExpiry: expiryDate,
           supportNumber: "+91-8102485837",
+          paymentStatus :order_status,
         });
 
-        console.log(`🎉 ${user.username} upgraded to Premium till ${expiryDate}`);
+        console.log(` ${user.username} upgraded to Premium till ${expiryDate}`);
       }
     }
 
@@ -107,7 +113,7 @@ router.get("/verify-order", async (req, res) => {
       created_at: data.created_at,
     });
   } catch (error) {
-    console.error("❌ verify-order error:", error.response?.data || error.message);
+    console.error(" verify-order error:", error.response?.data || error.message);
     res.status(500).json({ error: "Could not verify order", details: error.message });
   }
 });
@@ -115,52 +121,3 @@ router.get("/verify-order", async (req, res) => {
 module.exports = router;
 
 
-
-
-// router.get('/profile/:id', async (req, res) => {
-//   const orderId = req.query.order_id;
-//   if (!orderId) return res.status(400).json({ error: 'order_id required' });
-
-//   try {
-//     const url = `https://sandbox.cashfree.com/pg/orders/${encodeURIComponent(orderId)}`;
-//     const response = await axios.get(url, {
-//       headers: {
-//         'x-client-id': process.env.CASHFREE_APP_ID,
-//         'x-client-secret': process.env.CASHFREE_SECRET_KEY,
-//         'x-api-version': '2025-01-01'
-//       }
-//     });
-
-//     const d = response.data;
-
-//     // ✅ Check payment success
-//     if (d.order_status === 'PAID') {
-//       const userId = d.customer_details?.customer_id?.replace('user_', '');
-
-//       // Find user
-//       const user = await User.findByPk(userId);
-//       if (user) {
-//         const expiryDate = new Date();
-//         expiryDate.setDate(expiryDate.getDate() + 30); // valid for 30 days
-
-//         await user.update({
-//           isPremium: true,
-//           premiumExpiry: expiryDate,
-//           supportNumber: "+91-8102485837"
-//         });
-
-//         console.log(`✅ ${user.username} is now a Premium User until ${expiryDate}`);
-//       }
-//     }
-
-//     return res.json({
-//       order_status: d.order_status,
-//       order_amount: d.order_amount,
-//       cf_order_id: d.cf_order_id,
-//       created_at: d.created_at
-//     });
-//   } catch (err) {
-//     console.error('verify-order error', err.response?.data || err.message);
-//     return res.status(500).json({ error: 'Could not verify order', details: err.message });
-//   }
-// });

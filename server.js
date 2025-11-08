@@ -6,8 +6,9 @@ const userRoute = require("./routes/useroutes");
 const expenseroute = require("./routes/expenseRoute");
 const paymentRoute = require("./routes/paymentsroute");
 const path = require("path");
+const leaderboardRoute = require("./routes/leaderbord");
 
-// Static frontend serve karo
+
 app.use(express.static(path.join(__dirname, "public")));
 
 
@@ -21,7 +22,9 @@ app.use("/",expenseroute);
 app.use("/payment", paymentRoute);
 app.use("/user",paymentRoute);
 
+app.use("/leaderboard", leaderboardRoute);
 
+console.log("------------------------------------------for leader bord");
 sequelize.sync()
 .then(()=>{
     console.log("table creted");
