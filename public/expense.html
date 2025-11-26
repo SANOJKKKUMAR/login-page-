@@ -8,6 +8,15 @@
 
     <script src="https://sdk.cashfree.com/js/v3/cashfree.js"></script>
 
+    <script>
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+        window.location.href = "index.html";
+    }
+</script>
+
+
 
 
 
@@ -335,7 +344,7 @@
                 try {
                     // Update request
                     let id = editedbtn;
-                    const response = await fetch(`http://localhost:3000/expense/${id}`, {
+                    const response = await fetch(`http://localhost:3000/expenses/expense/${id}`, {
                         method: 'PUT',   // ✅ change from POST → PUT
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ amount, description, category })
@@ -354,11 +363,13 @@
                 try {
                     let userID = localStorage.getItem('userId');
                     console.log(userID);
-                    const response = await fetch('http://localhost:3000/expense', {
+                    const response = await fetch('http://localhost:3000/expenses/expense', {
                         method: 'POST',
                         headers: {
-                            'Content-Type': 'application/json'
+                            'Content-Type': 'application/json',
+                           
                         },
+                         credentials: 'include',
                         body: JSON.stringify({ amount, description, category, userID })
                     });
 
@@ -388,7 +399,7 @@
             try {
                 const id = localStorage.getItem("userId");
                 console.log(id);
-                const response = await fetch(`http://localhost:3000/expenses/${id}`, {
+                const response = await fetch(`http://localhost:3000/expenses/expenses/${id}`, {
                     method: 'GET',
                     headers: {
                         'Content-Type': 'application/json'
@@ -429,7 +440,7 @@
             try {
 
 
-                await fetch(`http://localhost:3000/expense/${id}`, {
+                await fetch(`http://localhost:3000/expenses/expense/${id}`, {
                     method: 'DELETE'
                 })
                     .then(response => response.json())
@@ -453,7 +464,7 @@
             const updatebtn = document.getElementById('updatebtn');
             updatebtn.textContent = 'Update Expense';
             try {
-                let res = await fetch(`http://localhost:3000/expense/${id}`);
+                let res = await fetch(`http://localhost:3000/expenses/expense/${id}`);
                 let data = await res.json();
                 document.getElementById("expense-amount").value = data.amount;
                 document.getElementById("expense-description").value = data.description;
@@ -473,7 +484,13 @@
 
         let logout = document.getElementById("logoutbtn");
         logout.addEventListener("click", (e) => {
+            localStorage.removeItem("token");
+            localStorage.removeItem("username");
+            localStorage.removeItem("userId");
+
+
             window.location.replace("index.html");
+
 
         })
 
@@ -537,7 +554,7 @@
             const userID = localStorage.getItem("userId");
             try {
                 console.log("premu m button called")
-                const res = await fetch(`http://localhost:3000/user/profile/${userID}`);
+                const res = await fetch(`http://localhost:3000/payment/profile/${userID}`);
                 const data = await res.json();
 
                 if (data.isPremium) {

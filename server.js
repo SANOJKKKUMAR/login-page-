@@ -7,24 +7,19 @@ const expenseroute = require("./routes/expenseRoute");
 const paymentRoute = require("./routes/paymentsroute");
 const path = require("path");
 const leaderboardRoute = require("./routes/leaderbord");
-
+const forget = require("./routes/forget-passwordroute");
 
 app.use(express.static(path.join(__dirname, "public")));
+app.use(express.urlencoded({ extended: true }));
+const cookieParser = require("cookie-parser");
+app.use(cookieParser());
 
+app.use(cors({
+    origin: ['http://localhost:3000', 'http://127.0.0.1:3000'],
+    credentials: true,
+}));
 
-
-app.use(cors());
 app.use(express.json());
-
-app.use("/",userRoute);
-app.use("/",expenseroute);
-
-app.use("/payment", paymentRoute);
-app.use("/user",paymentRoute);
-
-app.use("/leaderboard", leaderboardRoute);
-
-console.log("------------------------------------------for leader bord");
 sequelize.sync()
 .then(()=>{
     console.log("table creted");
@@ -32,11 +27,16 @@ sequelize.sync()
 .catch((eror)=>{
     console.log("eroro during table creation", eror)
 });
+app.use("/user",userRoute);
+app.use("/expenses"  ,expenseroute);
+app.use("/payment", paymentRoute);
+app.use("/password", forget);
+// app.use("/user",paymentRoute);
+app.use("/leaderboard", leaderboardRoute);
 
 
-app.use((err, req, res, next) => {
-  console.error(" Express Error:", err.stack); // full stack trace
-  res.status(500).json({ message: "Internal Server Error", error: err.message });
+app.get("/reset-password/:token", (req, res) => {
+    res.sendFile(path.join(__dirname, "public", "verfy-user.html"));
 });
 
 app.listen(3000,()=>{

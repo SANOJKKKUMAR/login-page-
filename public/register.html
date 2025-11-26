@@ -168,7 +168,7 @@ h3{
             //
              let res;
             try {
-                res = await fetch("http://localhost:3000/register", {
+                res = await fetch("http://localhost:3000/user/register", {
                     method: "POST",
 
                     headers: {
@@ -179,14 +179,20 @@ h3{
                 });
 
             }
+                 
+
+
             catch (err) {
                 console.log('Error occurred while registering:');
                 console.log(err);
             }
-            let data = await res.json();
-            console.log(data);
+
+
+             let data = await res.json();
+                     console.log(data);
             // You can add form submission logic here
             alert('Registration form submitted!');
+      
             event.target.reset();
         });
         // You can add JavaScript here for form submission handling if needed   
