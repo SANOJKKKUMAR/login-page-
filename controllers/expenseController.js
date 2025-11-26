@@ -1,32 +1,13 @@
 const sequelize = require("../config/db");
 const expense = require("../models/expenses");
-
-
-// exports.addExpense = async (req, res) => {
-//     console.log(req.body);
-//     const {userID, amount, description, category } = req.body;
-//     try {
-//         const newExpense = await expense.create({ userID ,amount, description, category });
-
-// const allExpenses = await expense.findAll({where :{userID : userID}});
-// console.log(allExpenses);
-//         res.status(201).json(allExpenses);
-//     } catch (error) {
-//         res.status(400).json({ error: error.message });
-//     }   
-
-// };
-
-
 const { suggestCategory } = require("../utils/aiHelper");
-
+const { Op } = require('sequelize'); // <-- add this
+ // <-- Ye missing tha
 
 exports.addExpense = async (req, res) => {
   const t = await sequelize.transaction();
   try {
     const { userID, amount, description } = req.body;
-
-    // ✅ Call AI to auto-categorize
     const category = await suggestCategory(description);
     console.log("cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",category);
 
@@ -46,38 +27,6 @@ exports.addExpense = async (req, res) => {
     await t.rollback();
   }
 };
-
-
-// exports.addExpense = async (req, res) => {
-//   try {
-//     const { userID, amount, description, category } = req.body;
-//     console.log("---------------ccccccccccccccccc",category);
-
-//     // If no category provided, let AI guess one
-//     let finalCategory = category;
-//     if (!finalCategory || finalCategory.trim() === "") {
-//       finalCategory = await suggestCategory(description);
-//       console.log("api -------------------------------------------------called");
-//     }
-
-//     const newExpense = await expense.create({
-//       userID,
-//       amount,
-//       description,
-//       category: finalCategory,
-//     });
-
-//     res.json({
-//       success: true,
-//       message: "Expense added successfully",
-//       expense: newExpense,
-//     });
-//   } catch (error) {
-//     console.error("Error adding expense:", error);
-//     res.status(500).json({ error: "Failed to add expense" });
-//   }
-// };
-
 
 exports.getExpensesByUser  =  async (req, res) => {
     const userID = req.params.id;
@@ -134,3 +83,134 @@ exports.getExpensebyID = async (req, res) => {
         res.status(400).json({ error: error.message });
     }
 };
+
+ 
+
+exports.getExpensebyDate = async (req, res) => {
+  const type  = req.query.type;
+  const userID = req.query.userID;
+
+  if(type === 'daily'){
+    const today = new Date();
+    const startOfDay = new Date(today.setHours(0, 0, 0, 0));
+    const endOfDay = new Date(today.setHours(23, 59, 59, 999)); 
+    try {
+      const expenses = await expense.findAll({
+        where: {
+          userID: userID,
+          createdAt: {
+            [Op.between]: [startOfDay, endOfDay],
+          } 
+        },
+      });
+      res.status(200).json(expenses);
+    } catch (error) {
+      res.status(400).json({ error: error.message });
+    }
+  }
+
+  if(type === 'weekly'){
+    const today = new Date();
+    const startOfWeek = new Date(today.setDate(today.getDate() - today.getDay()));
+    const endOfWeek = new Date(today.setDate(today.getDate() - today.getDay() + 6));
+    try {
+      const expenses = await expense.findAll({
+        where: {
+          userID: userID,
+          createdAt: {
+            [Op.between]: [startOfWeek, endOfWeek],
+          },
+        },
+      });
+      res.status(200).json(expenses);
+    } catch (error) {
+      res.status(400).json({ error: error.message });
+    }
+  }
+
+  if(type === 'monthly'){
+    const today = new Date();
+    const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+    const endOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0, 23, 59, 59, 999);
+    try {
+      const expenses = await expense.findAll({
+        where: {
+          userID: userID,
+          createdAt: {
+            [Op.between]: [startOfMonth, endOfMonth],
+          },
+        },
+      });
+      res.status(200).json(expenses);
+    } catch (error) {
+      res.status(400).json({ error: error.message });
+    }
+  }
+}
+
+
+// exports.getExpensebyDate = async (req, res) =>{
+//   const type  = req.query.type;
+//   const userID = req.query.userID;
+//   console.log("typeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",type);
+//   console.log("userIDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD",userID);
+//   if(type === 'daily'){
+//     const today = new Date();
+//     const startOfDay = new Date(today.setHours(0, 0, 0, 0));
+//     const endOfDay = new Date(today.setHours(23, 59, 59, 999)); 
+//     try {
+//       const expenses = await expense.findAll({
+//         where: {
+//           userID: userID,
+//           createdAt: {
+//             [sequelize.Op.between]: [startOfDay, endOfDay],
+//           } 
+//         },
+
+//       });
+//       console.log("Daily Expenses:", expenses);
+//       res.status(200).json(expenses);
+
+//     } catch (error) {
+//       res.status(400).json({ error: error.message });
+//     }
+//   }
+//   if(type === 'weekly'){
+//     const today = new Date();
+//     const startOfWeek = new Date(today.setDate(today.getDate() - today.getDay()));
+//     const endOfWeek = new Date(today.setDate(today.getDate() - today.getDay() + 6));
+//     try {
+//       const expenses = await expense.findAll({
+//         where: {
+//           userID: userID,
+//           createdAt: {
+//             [sequelize.Op.between]: [startOfWeek, endOfWeek],
+//           },
+//         },
+//       });
+//       res.status(200).json(expenses);
+//     } catch (error) {
+//       res.status(400).json({ error: error.message });
+//     }
+//   }
+//   if(type === 'monthly'){
+//     const today = new Date();
+//     const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+//     const endOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+//     try {
+//       const expenses = await expense.findAll({
+//         where: {
+//           userID: userID,
+//           createdAt: {
+//             [sequelize.Op.between]: [startOfMonth, endOfMonth],
+//           },
+//         },
+//       });
+//       res.status(200).json(expenses);
+//     } catch (error) {
+//       res.status(400).json({ error: error.message });
+//     }
+//   }
+
+// }
+

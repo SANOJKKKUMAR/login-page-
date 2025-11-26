@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Expense Report</title>
+
+<style>
+body {
+    font-family: Arial, sans-serif;
+    background: #f4f4f4;
+    padding: 20px;
+}
+
+.container {
+    max-width: 700px;
+    margin: auto;
+    background: white;
+    padding: 25px;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+}
+
+h2 {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+select, button {
+    padding: 10px;
+    font-size: 16px;
+    margin-right: 10px;
+}
+
+table {
+    width: 100%;
+    margin-top: 20px;
+    border-collapse: collapse;
+}
+
+table, th, td {
+    border: 1px solid #ccc;
+}
+
+th {
+    background: #333;
+    color: white;
+}
+
+td {
+    text-align: center;
+    padding: 8px;
+}
+
+#downloadBtn {
+    background: green;
+    color: white;
+    border: none;
+}
+
+#fetchBtn {
+    background: #007bff;
+    color: white;
+    border: none;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+    <h2>Expense Report</h2>
+
+    <select id="filterType">
+        <option value="daily">Daily</option>
+        <option value="weekly">Weekly</option>
+        <option value="monthly">Monthly</option>
+    </select>
+
+    <button id="fetchBtn">Get Report</button>
+    <button id="downloadBtn">Download CSV</button>
+
+    <table id="expenseTable">
+        <thead>
+            <tr>
+                <th>Date</th>
+                <th>Category</th>
+                <th>Amount (₹)</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+</div>
+
+<script>
+// ==========================
+// Fetch Expense Data
+// ==========================
+
+document.getElementById("fetchBtn").addEventListener("click", async () => {
+    const type = document.getElementById("filterType").value;
+const userID = localStorage.getItem("userId");
+    // 👉 Your backend API
+    const API_URL = `http://localhost:3000/expenses/allexpenses?type=${type}&userID=${userID}`;
+
+    try {
+        const res = await fetch(API_URL);
+        const data = await res.json();
+        console.log("Fetched Data:", data);
+
+        if (!Array.isArray(data)) return alert("Invalid data format!");
+
+        const tbody = document.querySelector("#expenseTable tbody");
+        tbody.innerHTML = "";
+        data.forEach(exp => {
+    const createdAt = new Date(exp.createdAt); // <-- convert string to Date
+    const row = `
+        <tr>
+            <td>${createdAt.toLocaleDateString()}</td>
+            <td>${exp.category}</td>
+            <td>${exp.amount}</td>
+        </tr>
+    `;
+    tbody.innerHTML += row;
+});
+
+
+    } catch (error) {
+        console.log("Error:", error);
+        alert("Failed to fetch data");
+    }
+});
+
+
+// ==========================
+// Download CSV
+// ==========================
+
+function tableToCSV() {
+    let csv = [];
+    const rows = document.querySelectorAll("table tr");
+
+    rows.forEach(row => {
+        let cols = row.querySelectorAll("td, th");
+        let rowData = [];
+        cols.forEach(col => rowData.push(col.innerText));
+        csv.push(rowData.join(","));
+    });
+
+    return csv.join("\n");
+}
+
+document.getElementById("downloadBtn").addEventListener("click", () => {
+    const csv = tableToCSV();
+
+    const blob = new Blob([csv], { type: "text/csv" });
+    const url = window.URL.createObjectURL(blob);
+
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "expense_report.csv";
+    a.click();
+});
+</script>
+
+</body>
+</html>

@@ -9,6 +9,7 @@ route.get("/expense/:id",expenseroute.getExpensebyID);
 route.delete("/expense/:id",expenseroute.deleteExpense);
 route.put("/expense/:id" , expenseroute.updateExpense);
 route.get("/expenses/:id",expenseroute.getExpensesByUser);
+route.get("/allexpenses",expenseroute.getExpensebyDate)
 
 
 module.exports = route;
