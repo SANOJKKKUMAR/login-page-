@@ -87,6 +87,15 @@ td {
     <h2>Expense Report</h2>
     <p> Total Expenses List :-<span id="expense-list"></span></p>
 
+
+    <select id="pageSizeSelect">
+    <option value="5">5 per page</option>
+    <option value="10">10 per page</option>
+    <option value="20">20 per page</option>
+    <option value="40">40 per page</option>
+</select>
+
+
     <select id="filterType">
         <option value=1>Daily</option>
         <option value=7>Weekly</option>
@@ -115,7 +124,7 @@ td {
     </div>
 </div>
 
-<script>
+<!-- <script>
     let count = 0;
 
 // ==========================
@@ -187,6 +196,135 @@ document.getElementById("fetchBtn").addEventListener("click", async () => {
 
 // ==========================
 // Pagination Buttons
+// ==========================
+document.getElementById("prevBtn").addEventListener("click", () => {
+    if (currentPage > 1) {
+        currentPage--;
+        renderTable();
+    }
+});
+
+document.getElementById("nextBtn").addEventListener("click", () => {
+    const totalPages = Math.ceil(fullExpenses.length / itemsPerPage);
+    if (currentPage < totalPages) {
+        currentPage++;
+        renderTable();
+    }
+});
+
+// ==========================
+// CSV Download
+// ==========================
+function tableToCSV() {
+    let csv = [];
+    const rows = document.querySelectorAll("table tr");
+
+    rows.forEach(row => {
+        let cols = row.querySelectorAll("td, th");
+        let rowData = [];
+        cols.forEach(col => rowData.push(col.innerText));
+        csv.push(rowData.join(","));
+    });
+
+    return csv.join("\n");
+}
+
+document.getElementById("downloadBtn").addEventListener("click", () => {
+    const csv = tableToCSV();
+
+    const blob = new Blob([csv], { type: "text/csv" });
+    const url = window.URL.createObjectURL(blob);
+
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "expense_report.csv";
+    a.click();
+});
+</script> -->
+
+
+
+<script>
+let count = 0;
+let fullExpenses = [];
+let currentPage = 1;
+
+// ⭐ NEW ⭐ Load pageSize from localStorage
+let itemsPerPage = Number(localStorage.getItem("pageSize")) || 10;
+
+// ⭐ NEW ⭐ Set dropdown selected value
+document.getElementById("pageSizeSelect").value = itemsPerPage;
+
+// ⭐ NEW ⭐ Update when user changes dropdown
+document.getElementById("pageSizeSelect").addEventListener("change", () => {
+    itemsPerPage = Number(document.getElementById("pageSizeSelect").value);
+    localStorage.setItem("pageSize", itemsPerPage);
+    currentPage = 1;
+    renderTable();
+});
+
+// ==========================
+// Render Table
+// ==========================
+function renderTable() {
+    count = 0;
+    const tbody = document.querySelector("#expenseTable tbody");
+    tbody.innerHTML = "";
+
+    const start = (currentPage - 1) * itemsPerPage;
+    const end = start + itemsPerPage;
+
+    const pageItems = fullExpenses.slice(start, end);
+
+    pageItems.forEach(exp => {
+        count++;
+        document.getElementById("expense-list").innerText = fullExpenses.length;
+
+        const createdAt = new Date(exp.createdAt);
+
+        const row = `
+            <tr>
+                <td>${createdAt.toLocaleDateString()}</td>
+                <td>${exp.category}</td>
+                <td>${exp.amount}</td>
+            </tr>
+        `;
+        tbody.innerHTML += row;
+    });
+
+    document.getElementById("pageInfo").innerText =
+        `Page ${currentPage} of ${Math.ceil(fullExpenses.length / itemsPerPage)}`;
+}
+
+// ==========================
+// Fetch from Backend
+// ==========================
+document.getElementById("fetchBtn").addEventListener("click", async () => {
+
+    const userID = localStorage.getItem("userId");
+    const limit = document.getElementById("filterType").value;
+
+    const API_URL = `http://localhost:3000/expenses/expenses?page=${currentPage}&limit=${limit}&userID=${userID}`;
+
+    try {
+        const res = await fetch(API_URL);
+        const data = await res.json();
+
+        if (!Array.isArray(data.expenses))
+            return alert("Invalid data format!");
+
+        fullExpenses = data.expenses;
+        currentPage = 1;
+
+        renderTable();
+
+    } catch (error) {
+        alert("Failed to fetch data");
+    }
+});
+
+// ==========================
+// Pagination
 // ==========================
 document.getElementById("prevBtn").addEventListener("click", () => {
     if (currentPage > 1) {
