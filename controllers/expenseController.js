@@ -149,6 +149,41 @@ exports.getExpensebyDate = async (req, res) => {
 }
 
 
+// GET /expenses?page=1&limit=10&userID=123
+
+exports.getExpensebypage =  async (req, res) => {
+  console.log("Pagination request received with query:-----------------------", req.query);
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const userID = req.query.userID;
+
+    const offset = (page - 1) * limit;
+
+    try {
+        // Get total count
+        const totalItems = await expense.count({ where: { userId: userID } });
+
+        // Get paginated rows
+        const expenses = await expense.findAll({
+            where: { userId: userID },
+            limit: limit,
+            offset: offset,
+            order: [['createdAt', 'DESC']]
+        });
+
+        res.json({
+            expenses,
+            totalItems,
+            totalPages: Math.ceil(totalItems / limit),
+            currentPage: page
+        });
+
+    } catch (error) {
+        res.status(500).json({ message: "Error fetching expenses", error });
+    }
+}
+
+
 // exports.getExpensebyDate = async (req, res) =>{
 //   const type  = req.query.type;
 //   const userID = req.query.userID;

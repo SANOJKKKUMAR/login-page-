@@ -209,11 +209,11 @@
     </style>
 
 
-    <style>
-.report{
-    display: none;
-}
+  <style>
 
+    .report{
+        display: none;
+    }
 body {
     font-family: Arial, sans-serif;
     background: #f4f4f4;
@@ -271,8 +271,22 @@ td {
     color: white;
     border: none;
 }
-</style>
 
+.pagination {
+    margin-top: 20px;
+    text-align: center;
+}
+
+.pagination button {
+    padding: 8px 12px;
+    margin: 5px;
+}
+
+.page-info {
+    margin-top: 10px;
+    font-weight: bold;
+}
+</style>
 
 
 
@@ -367,8 +381,10 @@ td {
 
     <div class="report">
         
+
 <div class="container">
     <h2>Expense Report</h2>
+    <p> Total Expenses List :-<span id="expense-list"></span></p>
 
     <select id="filterType">
         <option value="daily">Daily</option>
@@ -389,6 +405,13 @@ td {
         </thead>
         <tbody></tbody>
     </table>
+
+    <!-- Pagination UI -->
+    <div class="pagination">
+        <button id="prevBtn">Previous</button>
+        <button id="nextBtn">Next</button>
+        <div class="page-info" id="pageInfo"></div>
+    </div>
 </div>
 
     </div>
@@ -396,37 +419,65 @@ td {
 
 
 <script>
-// ==========================
-// Fetch Expense Data
-// ==========================
+    let count = 0;
 
+// ==========================
+// Pagination Variables
+// ==========================
+let fullExpenses = [];
+let currentPage = 1;
+const itemsPerPage = 10;
+
+// ==========================
+// Load Data with Pagination
+// ==========================
+function renderTable() {
+    count = 0;
+    const tbody = document.querySelector("#expenseTable tbody");
+    tbody.innerHTML = "";
+
+    const start = (currentPage - 1) * itemsPerPage;
+    const end = start + itemsPerPage;
+
+    const pageItems = fullExpenses.slice(start, end);
+
+    pageItems.forEach(exp => {
+        count++;
+        document.getElementById("expense-list").innerText = count;
+        const createdAt = new Date(exp.createdAt);
+        const row = `
+            <tr>
+                <td>${createdAt.toLocaleDateString()}</td>
+                <td>${exp.category}</td>
+                <td>${exp.amount}</td>
+            </tr>
+        `;
+        tbody.innerHTML += row;
+    });
+
+    document.getElementById("pageInfo").innerText =
+        `Page ${currentPage} of ${Math.ceil(fullExpenses.length / itemsPerPage)}`;
+}
+
+// ==========================
+// Fetch from Backend
+// ==========================
 document.getElementById("fetchBtn").addEventListener("click", async () => {
     const type = document.getElementById("filterType").value;
-const userID = localStorage.getItem("userId");
-    // 👉 Your backend API
+    const userID = localStorage.getItem("userId");
+
     const API_URL = `http://localhost:3000/expenses/allexpenses?type=${type}&userID=${userID}`;
 
     try {
         const res = await fetch(API_URL);
         const data = await res.json();
-        console.log("Fetched Data:", data);
 
         if (!Array.isArray(data)) return alert("Invalid data format!");
 
-        const tbody = document.querySelector("#expenseTable tbody");
-        tbody.innerHTML = "";
-        data.forEach(exp => {
-    const createdAt = new Date(exp.createdAt); // <-- convert string to Date
-    const row = `
-        <tr>
-            <td>${createdAt.toLocaleDateString()}</td>
-            <td>${exp.category}</td>
-            <td>${exp.amount}</td>
-        </tr>
-    `;
-    tbody.innerHTML += row;
-});
+        fullExpenses = data;
+        currentPage = 1;
 
+        renderTable();
 
     } catch (error) {
         console.log("Error:", error);
@@ -434,11 +485,27 @@ const userID = localStorage.getItem("userId");
     }
 });
 
+// ==========================
+// Pagination Buttons
+// ==========================
+document.getElementById("prevBtn").addEventListener("click", () => {
+    if (currentPage > 1) {
+        currentPage--;
+        renderTable();
+    }
+});
+
+document.getElementById("nextBtn").addEventListener("click", () => {
+    const totalPages = Math.ceil(fullExpenses.length / itemsPerPage);
+    if (currentPage < totalPages) {
+        currentPage++;
+        renderTable();
+    }
+});
 
 // ==========================
-// Download CSV
+// CSV Download
 // ==========================
-
 function tableToCSV() {
     let csv = [];
     const rows = document.querySelectorAll("table tr");
@@ -465,6 +532,7 @@ document.getElementById("downloadBtn").addEventListener("click", () => {
     a.click();
 });
 </script>
+
 
     <script>
 

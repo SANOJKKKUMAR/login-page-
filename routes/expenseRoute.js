@@ -10,6 +10,7 @@ route.delete("/expense/:id",expenseroute.deleteExpense);
 route.put("/expense/:id" , expenseroute.updateExpense);
 route.get("/expenses/:id",expenseroute.getExpensesByUser);
 route.get("/allexpenses",expenseroute.getExpensebyDate)
+route.get("/expenses",expenseroute.getExpensebypage);
 
 
 module.exports = route;
