@@ -3,14 +3,13 @@ const bcrypt = require("bcrypt");
 const User = require("../models/user");
 const path = require("path");
 const jwt = require("jsonwebtoken");
-const { maxHeaderSize } = require("http");
 
 
 
 
 exports.loginUSer = async(req,res)=>{
  const { username, password } = req.body;
-console.log("login request received for user:", username);
+
     try {
         const user = await User.findOne({ where: { username} });
         if (!user) {
@@ -22,24 +21,16 @@ console.log("login request received for user:", username);
         
         if (match) {
            const token = jwt.sign({ Email: user.email }, process.env.jwt_secret_key, { expiresIn: '1h' });
-
-    
-
-
          res.cookie("token", token, {
             httpOnly: true,
             secure: false,        // localhost = false
             maxAge: 3600000,      // 1 hour
             sameSite: "none",
             path: "/",
-     
 
-  
 
 });
-
-        console.log("Login successful for user:", username);
-        res.status(200).json({ message: 'Login successful', user, token });
+ res.status(200).json({ message: 'Login successful', user, token });
     
         } else {
             res.status(401).json({ message: 'Invalid credentials' });
@@ -51,7 +42,7 @@ console.log("login request received for user:", username);
 
 
 exports.register = async(req,res)=>{
-    console.log("register request received");
+
     const { username, email, password} = req.body;
     try {
     const hashedPassword = await bcrypt.hash(password, 10);

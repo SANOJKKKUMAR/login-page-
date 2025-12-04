@@ -1,4 +1,9 @@
+const dotenv = require("dotenv");
+dotenv.config();
 const cors = require("cors");
+const helmet = require("helmet");
+const morgan = require("morgan");
+
 const express = require("express");
 const sequelize= require("./config/db")
 const app = express();
@@ -13,9 +18,16 @@ app.use(express.static(path.join(__dirname, "public")));
 app.use(express.urlencoded({ extended: true }));
 const cookieParser = require("cookie-parser");
 app.use(cookieParser());
+app.use(helmet());
+const compression = require("compression");
+app.use(compression());
+app.use(morgan("common"));
+
 
 app.use(cors({
-    origin: ['http://localhost:3000', 'http://127.0.0.1:3000'],
+   origin: ['http://localhost:3000', 'http://127.0.0.1:3001'],
+    // origin: process.env.CORS_ORIGIN,
+
     credentials: true,
 }));
 
@@ -31,14 +43,13 @@ app.use("/user",userRoute);
 app.use("/expenses"  ,expenseroute);
 app.use("/payment", paymentRoute);
 app.use("/password", forget);
-// app.use("/user",paymentRoute);
 app.use("/leaderboard", leaderboardRoute);
 
 
 app.get("/reset-password/:token", (req, res) => {
     res.sendFile(path.join(__dirname, "public", "verfy-user.html"));
 });
-
-app.listen(3000,()=>{
-    console.log("rut at http//localhost:3000");
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+    console.log("Server running at port", PORT);
 });

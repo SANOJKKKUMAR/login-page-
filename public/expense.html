@@ -845,36 +845,3 @@ document.getElementById("downloadBtn").addEventListener("click", () => {
 
 
 </html>
-<!-- const premiumnbtn = document.getElementById("premiumnbtn");
-
-premiumnbtn.addEventListener("click", async () => {
-  try {
-    console.log("cliked payment button");
-    // Step 1: Create order by calling backend
-    const res = await fetch("http://localhost:3000/payment/create-order", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        amount: 100,
-        userid: "user_1",
-        customer_phone: "9876543210"
-      })
-    });
-
-    const data = await res.json();
-    console.log("Order response:", data);
-
-    // Step 2: Open Cashfree checkout
-    const cashfree = Cashfree({
-      mode: "sandbox" // change to "production" later
-    });
-
-    cashfree.checkout({
-      paymentSessionId: data.payment_session_id,
-      redirectTarget: "_self" // same tab redirect
-    });
-
-  } catch (error) {
-    console.error("Error starting payment:", error);
-  }
-}); -->

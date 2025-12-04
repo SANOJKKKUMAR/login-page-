@@ -6,7 +6,7 @@ require("dotenv").config();
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
 async function suggestCategory(description) {
-    console.log("calling ai funciotn  --------------ssssssssssssssss-s-s----------------s");
+   
   try {
     const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
 
@@ -17,10 +17,10 @@ async function suggestCategory(description) {
     const result = await model.generateContent(prompt);
     const text = result.response.text().trim();
 
-    console.log("AI suggested category:", text);
+    
     return text;
   } catch (error) {
-    console.error("AI Error:", error.message);
+   
     return "Others"; // default fallback
   }
 }

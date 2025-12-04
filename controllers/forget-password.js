@@ -1,13 +1,9 @@
 const jwt = require("jsonwebtoken");
 const nodemailer = require("nodemailer");
 const bcrypt = require("bcrypt");
-const User = require("../models/user");   // Sequelize model
+const User = require("../models/user");   
 require("dotenv").config();
 
-
-// =========================
-//  PASSWORD HELPERS
-// =========================
 const hashPassword = async (password) => {
   return await bcrypt.hash(password, 10);
 };
@@ -16,12 +12,8 @@ const comparePassword = async (password, hashedPassword) => {
   return await bcrypt.compare(password, hashedPassword);
 };
 
-
-// =========================
-//  1. FORGOT PASSWORD
-// =========================
 const forgetPassword = async (req, res) => {
-  console.log("Forget password request received");
+ 
   try {
     const { email } = req.body;
 
@@ -42,8 +34,6 @@ const forgetPassword = async (req, res) => {
       process.env.JWT_SECRET_KEY,
       { expiresIn: "1h" }
     );
-
-    // Gmail transporter
     const transporter = nodemailer.createTransport({
       service: "gmail",
       auth: {
@@ -69,12 +59,7 @@ const forgetPassword = async (req, res) => {
   }
 };
 
-
-// =========================
-//  2. RESET PASSWORD
-// =========================
 const resetPassword = async (req, res) => {
-  console.log("Reset password request received");
   try {
     const { token } = req.params;
     const { password } = req.body;
@@ -110,12 +95,7 @@ const resetPassword = async (req, res) => {
   }
 };
 
-
-// =========================
-//  3. CHANGE PASSWORD (logged-in user)
-// =========================
 const changePassword = async (req, res) => {
-  console.log("Change password request received");
   try {
     const { email, currentPassword, newPassword } = req.body;
 
