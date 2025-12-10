@@ -64,7 +64,7 @@
         }
 
         // ---- STEP 2: Send Reset Request to Backend ----
-        const res = await fetch("http://localhost:3000/password/reset-password/" + token, {
+        const res = await fetch("/password/reset-password/" + token, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ password })
