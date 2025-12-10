@@ -68,7 +68,7 @@
   btn.addEventListener("click", async () => {
     try {
       console.log("Starting fetching...");
-      const res = await fetch("http://localhost:3000/leaderboard/leaderboard");
+      const res = await fetch("/leaderboard/leaderboard");
       const result = await res.json();
       console.log(result);
 

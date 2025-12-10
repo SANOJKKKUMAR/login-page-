@@ -487,7 +487,7 @@ document.getElementById("fetchBtn").addEventListener("click", async () => {
     const userID = localStorage.getItem("userId");
     const limit = document.getElementById("filterType").value;
 
-    const API_URL = `http://localhost:3000/expenses/expenses?page=${currentPage}&limit=${limit}&userID=${userID}`;
+    const API_URL = `/expenses/expenses?page=${currentPage}&limit=${limit}&userID=${userID}`;
 
     try {
         const res = await fetch(API_URL);
@@ -565,7 +565,7 @@ document.getElementById("downloadBtn").addEventListener("click", () => {
         btn.addEventListener("click", async () => {
             try {
                 console.log("Starting fetching...");
-                const res = await fetch("http://localhost:3000/leaderboard/leaderboard");
+                const res = await fetch("/leaderboard/leaderboard");
                 const result = await res.json();
                 console.log(result);
 
@@ -604,7 +604,7 @@ document.getElementById("downloadBtn").addEventListener("click", () => {
                 try {
                     // Update request
                     let id = editedbtn;
-                    const response = await fetch(`http://localhost:3000/expenses/expense/${id}`, {
+                    const response = await fetch(`/expenses/expense/${id}`, {
                         method: 'PUT',   // ✅ change from POST → PUT
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ amount, description, category })
@@ -623,7 +623,7 @@ document.getElementById("downloadBtn").addEventListener("click", () => {
                 try {
                     let userID = localStorage.getItem('userId');
                     console.log(userID);
-                    const response = await fetch('http://localhost:3000/expenses/expense', {
+                    const response = await fetch('/expenses/expense', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
@@ -659,7 +659,7 @@ document.getElementById("downloadBtn").addEventListener("click", () => {
             try {
                 const id = localStorage.getItem("userId");
                 console.log(id);
-                const response = await fetch(`http://localhost:3000/expenses/expenses/${id}`, {
+                const response = await fetch(`/expenses/expenses/${id}`, {
                     method: 'GET',
                     headers: {
                         'Content-Type': 'application/json'
@@ -700,7 +700,7 @@ document.getElementById("downloadBtn").addEventListener("click", () => {
             try {
 
 
-                await fetch(`http://localhost:3000/expenses/expense/${id}`, {
+                await fetch(`/expenses/expense/${id}`, {
                     method: 'DELETE'
                 })
                     .then(response => response.json())
@@ -724,7 +724,7 @@ document.getElementById("downloadBtn").addEventListener("click", () => {
             const updatebtn = document.getElementById('updatebtn');
             updatebtn.textContent = 'Update Expense';
             try {
-                let res = await fetch(`http://localhost:3000/expenses/expense/${id}`);
+                let res = await fetch(`/expenses/expense/${id}`);
                 let data = await res.json();
                 document.getElementById("expense-amount").value = data.amount;
                 document.getElementById("expense-description").value = data.description;
@@ -783,7 +783,7 @@ document.getElementById("downloadBtn").addEventListener("click", () => {
                 console.log("clicked payment button");
 
                 // Step 1: Create order by calling backend
-                const res = await fetch("http://localhost:3000/payment/create-order", {
+                const res = await fetch("/payment/create-order", {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({
@@ -814,7 +814,7 @@ document.getElementById("downloadBtn").addEventListener("click", () => {
             const userID = localStorage.getItem("userId");
             try {
                 console.log("premu m button called")
-                const res = await fetch(`http://localhost:3000/payment/profile/${userID}`);
+                const res = await fetch(`/payment/profile/${userID}`);
                 const data = await res.json();
 
                 if (data.isPremium) {

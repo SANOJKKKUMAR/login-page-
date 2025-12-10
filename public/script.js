@@ -13,7 +13,7 @@
                try{
                    // Update request
   let id = editedbtn;
-  const response = await fetch(`http://localhost:3000/expense/${id}`, {
+  const response = await fetch(`/expense/${id}`, {
       method: 'PUT',   // ✅ change from POST → PUT
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ amount, description, category })
@@ -32,7 +32,7 @@
             try{
                let userID = localStorage.getItem('userId');
                console.log(userID);
-                const response = await fetch('http://localhost:3000/expense', {
+                const response = await fetch('/expense', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
@@ -66,7 +66,7 @@ historybtn.addEventListener('click', async() => {
     try {
         const id = localStorage.getItem("userId");
         console.log(id);
-        const response = await fetch(`http://localhost:3000/expenses/${id}`, {
+        const response = await fetch(`/expenses/${id}`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json'
@@ -107,7 +107,7 @@ showname();
     try{
        
 
-   await  fetch(`http://localhost:3000/expense/${id}`, {
+   await  fetch(`/expense/${id}`, {
         method: 'DELETE'
     })
     .then(response => response.json())
@@ -131,7 +131,7 @@ catch(error){
  const updatebtn = document.getElementById('updatebtn');
  updatebtn.textContent = 'Update Expense';
     try{
-     let res =  await  fetch(`http://localhost:3000/expense/${id}`);
+     let res =  await  fetch(`/expense/${id}`);
         let data = await res.json();
         document.getElementById("expense-amount").value = data.amount;
         document.getElementById("expense-description").value = data.description;

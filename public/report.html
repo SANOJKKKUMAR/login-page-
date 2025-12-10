@@ -124,124 +124,6 @@ td {
     </div>
 </div>
 
-<!-- <script>
-    let count = 0;
-
-// ==========================
-// Pagination Variables
-// ==========================
-let fullExpenses = [];
-let currentPage = 1;
-const itemsPerPage = 10;
-
-// ==========================
-// Load Data with Pagination
-// ==========================
-function renderTable() {
-    count = 0;
-    const tbody = document.querySelector("#expenseTable tbody");
-    tbody.innerHTML = "";
-
-    const start = (currentPage - 1) * itemsPerPage;
-    const end = start + itemsPerPage;
-
-    const pageItems = fullExpenses.slice(start, end);
-
-   pageItems.forEach(exp => {
-        count++;
-        document.getElementById("expense-list").innerText = count;
-        const createdAt = new Date(exp.createdAt);
-        const row = `
-            <tr>
-                <td>${createdAt.toLocaleDateString()}</td>
-                <td>${exp.category}</td>
-                <td>${exp.amount}</td>
-            </tr>
-        `;
-        tbody.innerHTML += row;
-    });
-
-    document.getElementById("pageInfo").innerText =
-        `Page ${currentPage} of ${Math.ceil(fullExpenses.length / itemsPerPage)}`;
-}
-
-// ==========================
-// Fetch from Backend
-// ==========================
-document.getElementById("fetchBtn").addEventListener("click", async () => {
-
-    const userID = localStorage.getItem("userId");
-    const limit = document.getElementById("filterType").value;
-
-   // const API_URL = `http://localhost:3000/expenses/allexpenses?type=${type}&userID=${userID}`;
- const API_URL = `http://localhost:3000/expenses/expenses?page=${currentPage}&limit=${limit}&userID=${userID}`;
-
-    try {
-        const res = await fetch(API_URL);
-        const data = await res.json();
-        console.log("Fetched Data:", data);
-
-        if (!Array.isArray(data.expenses)) return alert("Invalid data format!");
-
-        fullExpenses = data.expenses;
-        currentPage = 1;
-
-        renderTable();
-
-    } catch (error) {
-        console.log("Error:", error);
-        alert("Failed to fetch data");
-    }
-});
-
-// ==========================
-// Pagination Buttons
-// ==========================
-document.getElementById("prevBtn").addEventListener("click", () => {
-    if (currentPage > 1) {
-        currentPage--;
-        renderTable();
-    }
-});
-
-document.getElementById("nextBtn").addEventListener("click", () => {
-    const totalPages = Math.ceil(fullExpenses.length / itemsPerPage);
-    if (currentPage < totalPages) {
-        currentPage++;
-        renderTable();
-    }
-});
-
-// ==========================
-// CSV Download
-// ==========================
-function tableToCSV() {
-    let csv = [];
-    const rows = document.querySelectorAll("table tr");
-
-    rows.forEach(row => {
-        let cols = row.querySelectorAll("td, th");
-        let rowData = [];
-        cols.forEach(col => rowData.push(col.innerText));
-        csv.push(rowData.join(","));
-    });
-
-    return csv.join("\n");
-}
-
-document.getElementById("downloadBtn").addEventListener("click", () => {
-    const csv = tableToCSV();
-
-    const blob = new Blob([csv], { type: "text/csv" });
-    const url = window.URL.createObjectURL(blob);
-
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "expense_report.csv";
-    a.click();
-});
-</script> -->
-
 
 
 <script>
@@ -304,7 +186,7 @@ document.getElementById("fetchBtn").addEventListener("click", async () => {
     const userID = localStorage.getItem("userId");
     const limit = document.getElementById("filterType").value;
 
-    const API_URL = `http://localhost:3000/expenses/expenses?page=${currentPage}&limit=${limit}&userID=${userID}`;
+    const API_URL = `/expenses/expenses?page=${currentPage}&limit=${limit}&userID=${userID}`;
 
     try {
         const res = await fetch(API_URL);
