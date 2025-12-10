@@ -25,13 +25,15 @@ app.use(morgan("common"));
 
 
 app.use(cors({
-   origin: ['http://localhost:3000', 'http://127.0.0.1:3000'],
-    // origin: process.env.CORS_ORIGIN,
-
-    credentials: true,
+    origin: ["http://3.111.53.36:3000", "http://localhost:3000"],
+    methods: "GET,POST,PUT,DELETE",
+    credentials: true
 }));
 
+
 app.use(express.json());
+
+
 sequelize.sync()
 .then(()=>{
     console.log("table creted");
