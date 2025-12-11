@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Reset Password</title>
-    <link rel="stylesheet" href="style.css">
+    
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -42,9 +42,9 @@
     <input type="password" id="password" placeholder="Enter new password">
     <input type="password" id="cpassword" placeholder="Confirm password">
 
-    <button onclick="resetPassword()">Submit</button>
+    <button id="rbtn">Submit</button>
 
-    <p id="msg" style="color:green; margin-top:10px;"></p>
+    <p  id="msg"></p>
 </div>
 
 <script>
@@ -52,10 +52,9 @@
     // ---- STEP 1: Extract Token From URL ----
     const token = window.location.pathname.split("/").pop();
     console.log("Token:", token);
-
-    async function resetPassword() {
-
-        const password = document.getElementById("password").value;
+    const rbtn = document.getElementById("rbtn");
+    rbtn.addEventListener("click",async(e)=>{
+  const password = document.getElementById("password").value;
         const cpassword = document.getElementById("cpassword").value;
 
         if (password !== cpassword) {
@@ -71,15 +70,18 @@
         });
 
         const data = await res.json();
+        console.log(data)
         document.getElementById("msg").innerText = data.message;
 
         // Redirect to login page after 3 seconds
         if (res.ok) {
             setTimeout(() => {
-                alert("Redirecting to login page");
+                 window.location.href = '/index.html';
             }, 3000);
         }
-    }
+     
+
+        })
 </script>
 
 </body>

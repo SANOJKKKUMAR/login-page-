@@ -18,10 +18,14 @@ app.use(express.static(path.join(__dirname, "public")));
 app.use(express.urlencoded({ extended: true }));
 const cookieParser = require("cookie-parser");
 app.use(cookieParser());
-app.use(helmet());
+//app.use(helmet());
 const compression = require("compression");
 app.use(compression());
 app.use(morgan("common"));
+app.use(helmet({
+  contentSecurityPolicy: false
+}));
+
 
 
 app.use(cors({
