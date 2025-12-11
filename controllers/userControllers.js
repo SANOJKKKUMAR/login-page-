@@ -23,10 +23,10 @@ exports.loginUSer = async(req,res)=>{
            const token = jwt.sign({ Email: user.email }, process.env.jwt_secret_key, { expiresIn: '1h' });
          res.cookie("token", token, {
             httpOnly: true,
-            secure: false,        // localhost = false
-            maxAge: 3600000,      // 1 hour
-            sameSite: "none",
-            path: "/",
+            secure: false,     // your EC2 is HTTP
+            sameSite: "lax",   // correct for HTTP server
+            maxAge: 3600000,
+            path: "/"
 
 
 });
