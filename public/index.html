@@ -58,11 +58,11 @@
             localStorage.setItem('username', data.user.username);
             localStorage.setItem('token', data.token);
             console.log(data.user.id);
-            localStorage.setItem('userId', data.user.userID);
-            console.log('Success:', data);
+            localStorage.setItem('userId', data.user.id);
+            console.log('Success:', data.user);
             alert('Login successful! Check console for response.');
 
-           window.location.replace('expense.html');
+          window.location.replace('expense.html');
 
         } catch (err) {
             console.error('Error occurred during login:', err);

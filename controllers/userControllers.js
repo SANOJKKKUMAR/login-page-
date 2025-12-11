@@ -22,7 +22,7 @@ exports.loginUser = async (req, res) => {
     }
 
     // create minimal token payload
-    const payload = { id: user.id, email: user.email };
+    const payload = { id: user.userID, email: user.email };
     const token = jwt.sign(payload, process.env.JWT_SECRET || process.env.jwt_secret_key, { expiresIn: '1h' });
 
     // set cookie (HTTP server — change when you enable HTTPS)
@@ -36,7 +36,7 @@ exports.loginUser = async (req, res) => {
 
     // send safe user data only (no password)
     const safeUser = {
-      id: user.id,
+      id: user.userID,
       username: user.username,
       email: user.email,
       // add other public fields if needed
