@@ -61,7 +61,7 @@
         console.log("Verifying order:", orderId);
 
         // ✅ Always use full backend URL for ngrok/live (important)
-        const res = await fetch(`http://localhost:3000/payment/verify-order?order_id=${orderId}`);
+        const res = await fetch(`/payment/verify-order?order_id=${orderId}`);
         const data = await res.json();
         console.log("Verify response:", data);
 

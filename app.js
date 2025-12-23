@@ -55,6 +55,12 @@ app.use("/leaderboard", leaderboardRoute);
 app.get("/reset-password/:token", (req, res) => {
     res.sendFile(path.join(__dirname, "public", "verfy-user.html"));
 });
+
+// app.js
+app.get("/api/health", (req, res) => {
+  res.send("API updated successfully");
+});
+
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
     console.log("Server running at port", PORT);
